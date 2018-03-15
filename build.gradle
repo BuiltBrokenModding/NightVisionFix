@@ -52,6 +52,35 @@ println "Current Java version = " + currentJvm
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
+jar {
+     manifest.mainAttributes(
+            "Built-By": System.getProperty('user.name'),
+            "Created-By": currentJvm,
+            "Implementation-Title": archivesBaseName,
+            "Implementation-Version": project.version,
+            "FMLCorePlugin": coremod,
+            "FMLCorePluginContainsFMLMod": "true")
+}
+
+deobfJar {
+     manifest.mainAttributes(
+            "Built-By": System.getProperty('user.name'),
+            "Created-By": currentJvm,
+            "Implementation-Title": archivesBaseName,
+            "Implementation-Version": project.version,
+            "FMLCorePlugin": coremod,
+            "FMLCorePluginContainsFMLMod": "true")
+}
+
+sourcesJar {
+     manifest.mainAttributes(
+            "Built-By": System.getProperty('user.name'),
+            "Created-By": currentJvm,
+            "Implementation-Title": archivesBaseName,
+            "Implementation-Version": project.version,
+            "FMLCorePlugin": coremod,
+            "FMLCorePluginContainsFMLMod": "true")
+}
 
 def getDate() {
     def date = new Date()

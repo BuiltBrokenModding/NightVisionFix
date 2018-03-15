@@ -1,10 +1,14 @@
 package com.builtbroken.nvfix;
 
+import cpw.mods.fml.common.asm.transformers.deobf.FMLDeobfuscatingRemapper;
 import net.minecraft.launchwrapper.IClassTransformer;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.*;
+import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.MethodNode;
 
 /**
  * Applies patches to {@link net.minecraft.client.renderer.EntityRenderer} to change night vision brightness
@@ -24,21 +28,18 @@ public class TransformerEntityRenderer implements IClassTransformer
     @Override
     public byte[] transform(String name, String transformedName, byte[] bytes)
     {
-        if (transformedName.equals(TARGET_CLASS))
+        if (transformedName.trim().endsWith("EntityRenderer"))
         {
+            System.out.println("NVFixMod: Applying patch to class>>" + transformedName);
             ClassNode cnode = createClassNode(bytes);
 
+            System.out.println("NVFixMod: searching for method with name of '" + TARGET_METHOD + "' or ' " + TARGET_METHOD_2 + "'");
             for (MethodNode method : cnode.methods)
             {
-                if (method.name.equalsIgnoreCase(TARGET_METHOD) || method.name.equalsIgnoreCase(TARGET_METHOD_2))
+                final String methodName = FMLDeobfuscatingRemapper.INSTANCE.mapMethodName(cnode.name, method.name, method.desc);
+                if ((methodName.equalsIgnoreCase(TARGET_METHOD) || methodName.equalsIgnoreCase(TARGET_METHOD_2)) && method.desc.endsWith("F)F"))
                 {
-                    //Debug
-                    System.out.println("Before:");
-                    for (AbstractInsnNode insnNode : method.instructions.toArray())
-                    {
-                        System.out.println("\t" + insnNode.getOpcode() + "  ->>  " + insnNode);
-                    }
-
+                    System.out.println("NVFixMod: Found method, Applying patch to method>> " + method.name + method.desc);
                     //Remove previous code
                     method.instructions.clear();
 
@@ -46,15 +47,9 @@ public class TransformerEntityRenderer implements IClassTransformer
                     method.instructions.add(new FieldInsnNode(Opcodes.GETSTATIC, STATIC_VALUE_CLASS, STATIC_VALUE_FIELD, "F"));
                     method.instructions.add(new InsnNode(Opcodes.FRETURN));
 
-                    //Debug
-                    System.out.println("After:");
-                    for (AbstractInsnNode insnNode : method.instructions.toArray())
-                    {
-                        System.out.println("\t" + insnNode.getOpcode() + "  ->>  " + insnNode);
-                    }
+                    return createBytes(cnode);
                 }
             }
-            return createBytes(cnode);
         }
         return bytes;
     }

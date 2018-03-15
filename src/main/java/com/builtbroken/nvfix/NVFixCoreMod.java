@@ -9,6 +9,8 @@ import java.util.Map;
  * Created by Dark(DarkGuardsman, Robert) on 3/5/2018.
  */
 @IFMLLoadingPlugin.MCVersion(value = "1.7.10")
+@IFMLLoadingPlugin.Name("NVFixCoreMod")
+@IFMLLoadingPlugin.TransformerExclusions("com.builtbroken.nvfix")
 public class NVFixCoreMod implements IFMLLoadingPlugin
 {
     /** Controls default value for NV brightness, injected into MC via ASM so do not move or change */
